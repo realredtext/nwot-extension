@@ -103,6 +103,7 @@ var staticNumsPath = settings.paths.static_shortcuts;
 var restrPath      = settings.paths.restr;
 var restrCg1Path   = settings.paths.restr_cg1;
 var accountSystem  = settings.account_system; // "uvias" or "local"
+var blockedPhrases = settings.paths.blocked_phrases;
 
 var loginPath = "/accounts/login/";
 var logoutPath = "/accounts/logout/";
@@ -170,6 +171,7 @@ var memTileCache = {};
 
 var clientVersion = "";
 var ranks_cache = { users: {} };
+var blockedPhraseList = [];
 var restr_cache = "";
 var restr_cg1_cache = "";
 var restr_update = null;
@@ -184,6 +186,12 @@ var template_data = {}; // data used by the server
 var static_data = {}; // return static server files
 
 console.log("Loaded libs");
+
+async function setBlockedPhrases(list) {
+	if(JSON.stringify(blockedPhraseList) !== JSON.stringify(list)) blockedPhraseList = list;
+	global_data.blockedPhraseList = blockedPhraseList;
+	await fs.promises.writeFile(blockedPhrases, blockedPhraseList.join("\n"));
+}
 
 function loadPlugin(reload) {
 	if(!reload) {
@@ -266,6 +274,7 @@ process.argv.forEach(function(a) {
 
 // only accessible through modifying shell.js in the data directory - no web interface ever used to enter commands
 async function runShellScript(includeColors) {
+	
 	var shellFile = loadShellFile();
 	if(shellFile == null) {
 		return "ERR: File does not exist";
@@ -549,7 +558,8 @@ var pages = {
 		users_by_id: require("./backend/pages/admin/users_by_id.js"),
 		users_by_username: require("./backend/pages/admin/users_by_username.js"),
 		restrictions: require("./backend/pages/admin/restrictions.js"),
-		shell: require("./backend/pages/admin/shell.js")
+		shell: require("./backend/pages/admin/shell.js"),
+		chat_filter: require("./backend/pages/admin/chat_filter.js")
 	},
 	other: {
 		ipaddress: require("./backend/pages/other/ipaddress.js"),
@@ -1127,6 +1137,7 @@ function createEndpoints(server) {
 	server.registerEndpoint("administrator/monitor/", (settings && settings.monitor && settings.monitor.redirect) ? settings.monitor.redirect : null);
 	server.registerEndpoint("administrator/shell", pages.admin.shell);
 	server.registerEndpoint("administrator/restrictions", pages.admin.restrictions, { binary_post_data: true });
+	server.registerEndpoint("administrator/chat_filter", pages.admin.chat_filter);
 
 	server.registerEndpoint("script_manager/", pages.script_manager);
 	server.registerEndpoint("script_manager/edit/*", pages.script_edit);
@@ -1410,6 +1421,12 @@ async function commitRestrictionsToDisk() {
 		restr_cg1_update = null;
 	}
 }
+
+var phrasePenaltyTime = 0;
+function setPhraseTime(n) {
+	phrasePenaltyTime = n;
+	global_data.phrasePenaltyTime = n;
+};
 
 async function loadServerSettings() {
 	for(var option in serverSettings) {
@@ -2333,6 +2350,9 @@ var global_data = {
 	getServerSetting,
 	restrictions,
 	saveRestrictions,
+	setBlockedPhrases,
+	setPhraseTime,
+	blockedPhraseList,
 	accountSystem,
 	ms,
 	checkHash,

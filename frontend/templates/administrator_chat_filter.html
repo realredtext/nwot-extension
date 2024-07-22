@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Filter Chat Phrases | Our World of Text
+{% endblock %}
+
+{% block header %}
+	<h1>Filter Chat Phrases</h1>
+	<span><a href="/administrator/">« Back to Admin Panel</a></span>
+{% endblock %}
+
+{% block endhead %}
+	<style>
+		#subm_list {
+			width: 530px;
+			height: 670px;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="content_set">
+		<div class="content_set_title">Set List</div>
+		<div class="content_set_content">
+			{% if message %}
+				<div class="content_set_content">
+					<span style="font-size:80%"><i>{{ message }}</i></span>
+				</div>
+			{% endif %}
+			<form method="POST" action=".">
+				<textarea name="subm_list" id="subm_list">{{ phrase_list }}</textarea>
+				Seconds muted:
+				<input type="text" name="time" id="time" value="{{ phrase_penalty }}">
+				<input type="submit" value="Set List and Penalty">
+				
+				<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrftoken }}">
+			</form>
+		</div>
+	</div>
+{% endblock %}

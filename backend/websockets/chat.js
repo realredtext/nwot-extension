@@ -3,6 +3,7 @@ var html_tag_esc = utils.html_tag_esc;
 var san_nbr = utils.san_nbr;
 var calculateTimeDiff = utils.calculateTimeDiff;
 var create_date = utils.create_date;
+var includesAnyOf = utils.includesAnyOf;
 
 function sanitizeColor(col) {
 	var masks = ["#XXXXXX", "#XXX"];
@@ -87,6 +88,9 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 
 	var isGlobalEnabled = getServerSetting("chatGlobalEnabled") == "1";
 
+	var blockedPhraseList = server.blockedPhraseList.filter(x => x.length);
+	var phrasePenaltyTime = server.phrasePenaltyTime;
+
 	var clientIpObj = null;
 	if(client_ips[world.id]) {
 		if(client_ips[world.id][clientId]) {
@@ -137,7 +141,7 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 		serverChatResponse("The global channel is not available", location);
 		return;
 	}
-
+	
 	var isMuted = false;
 	var isTestMessage = false;
 	var muteInfo = null;
@@ -158,6 +162,15 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 			isMuted = false;
 			delete worldChatMutes[ipHeaderAddr];
 		}
+	}
+
+	if(includesAnyOf(blockedPhraseList, data.message)) {
+		let unmuteDate = Date.now() + phrasePenaltyTime*1000;
+		if(data.location === "global") blocked_ips_by_world_id[0][ipAddrHeader] = [unmuteDate];
+		if(! (world.id in blocked_ips_by_world_id)) blocked_ips_by_world_id[world.id] = {};
+		blocked_ips_by_world_id[world.id][ipHeaderAddr] = [unmuteDate];
+
+		return serverChatResponse(`You have been muted for ${phrasePenaltyTime} seconds for using a blocked phrase.`, location);
 	}
 
 	var nick = "";

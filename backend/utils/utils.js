@@ -719,6 +719,15 @@ function filterEdit(char) {
 	return buffer;
 }
 
+function includesAnyOf(queries, sample) {
+	for(var i of queries) {
+		if(sample.includes(i)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function change_char_in_array(arr, char, index) {
 	if(!char) return false;
 	if(char.includes("\0")) return false;
@@ -851,5 +860,6 @@ module.exports = {
 	trimSlash,
 	checkDuplicateCookie,
 	toHex64,
-	toInt64
+	toInt64,
+	includesAnyOf
 };
