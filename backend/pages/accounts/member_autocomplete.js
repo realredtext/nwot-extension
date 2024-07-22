@@ -22,13 +22,15 @@ module.exports.GET = async function(req, write, server, ctx) {
 	input += "";
 	input = input.trim();
 	if(!input) return write("");
-	if(input.length < 4) return write("");
+	if(input.length < 4 && !user.superuser) return write("");
 
 	var list;
 	if(accountSystem == "uvias") {
 		list = await uvias.all("SELECT username FROM accounts.users WHERE username ILIKE $1::text || '%' ESCAPE '\\' ORDER BY username LIMIT 10", escape_control(input));
+		if(user.superuser) list = await uvias.all("SELECT username FROM accounts.users WHERE usernmae ILIKE $1::text || '%' ESCAPE '\\' ORDER BY username LIMIT 10000000000", escape_control(input));
 	} else if(accountSystem == "local") {
 		list = await db.all("SELECT username FROM auth_user WHERE username LIKE ? || '%' ESCAPE '\\' ORDER BY username LIMIT 10", escape_control(input));
+		if(user.superuser) list = await db.all("SELECT username FROM auth_user WHERE username LIKE ? || '%' ESCAPE '\\' ORDER BY username LIMIT 100000000000", escape_control(input));
 	}
 
 	var users = [];
