@@ -535,7 +535,8 @@ var pages = {
 		sso: require("./backend/pages/accounts/sso.js"),
 		tabular: require("./backend/pages/accounts/tabular.js"),
 		verify: require("./backend/pages/accounts/verify.js"),
-		verify_email: require("./backend/pages/accounts/verify_email.js")
+		verify_email: require("./backend/pages/accounts/verify_email.js"),
+		chathistory: require("./backend/pages/accounts/chathistory.js")
 	},
 	admin: {
 		administrator: require("./backend/pages/admin/administrator.js"),
@@ -1104,6 +1105,7 @@ function createEndpoints(server) {
 	server.registerEndpoint("accounts/tabular", pages.accounts.tabular);
 	server.registerEndpoint("accounts/verify_email/*", pages.accounts.verify_email);
 	server.registerEndpoint("accounts/sso", pages.accounts.sso);
+	server.registerEndpoint("accounts/chathistory/*", pages.accounts.chathistory);
 
 	server.registerEndpoint("ajax/protect", pages.protect);
 	server.registerEndpoint("ajax/unprotect", pages.unprotect);
