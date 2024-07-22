@@ -1881,6 +1881,22 @@ function getUserSocketCount() {
 	return [...wss.clients].filter(client => client.sdata.userClient).length;
 }
 
+function getFormattedSockets() {
+	let sockets = [];
+	wss.clients.forEach(({sdata}) => {
+		sockets.push({
+			hidden: sdata.hide_user_count,
+			world: sdata.world.name,
+			username: sdata.user.username,
+			id: sdata.clientId,
+			channel: sdata.channel,
+			ipAddress: sdata.ipAddress
+		})
+	});
+
+	return sockets;
+}
+
 async function manageWebsocketConnection(ws, req) {
 	if(isStopping || !serverLoaded) return ws.close();
 	ws.sdata = {
@@ -2267,11 +2283,16 @@ async function start_server() {
 		broadcastUserCount();
 	}, 2000);
 
-	intv.userSocketCount = setInterval(function() {
+	intv.userMonitorUtils = setInterval(function() {
 		broadcastMonitorEvent("raw", {
 			type: "socketStats",
 			count: getUserSocketCount()
-		})
+		});
+
+		broadcastMonitorEvent("raw", {
+			type: "formattedSockets",
+			data: getFormattedSockets()
+		});
 	}, 5000);
 
 	intv.traff_mon_net_interval = setInterval(function() {

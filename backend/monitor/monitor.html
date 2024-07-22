@@ -43,8 +43,11 @@
 				overflow-wrap: break-word;
 				display: inline-block;
 			}
-			#outputPanel span {
+			.outputPanel span {
 				display: block;
+			}
+			#userMonitorPanel {
+				width: 1170px;
 			}
 			.tileCachePanel {
 				background-color: white;
@@ -104,7 +107,7 @@
 				<tr style ="height: 100%; color: #000000;">
 					<td style="vertical-align: top; padding-top: 1px;">
 						<div style="background-color: #e6f0ff; height: 100%; padding: 4px;">
-							<div class="outputPanel"></div>
+							<div class="outputPanel" id="userMonitorPanel"></div>
 							<div class="tileCachePanel">
 								<b>Socket stats</b><br>
 								<span id="user_sockets">User sockets: --</span><br>
@@ -166,20 +169,38 @@
 				elm.innerText = logType + " (" + count + ")";
 			}
 
-			var outputPanel = document.getElementById("outputPanel");
-			function appendLine(string, panel) {
+			var mainOutputPanel = document.getElementById("mainOutputPanel");
+			function appendLine(string, panel, escape=true) {
 				var line = document.createElement("span");
-				string = string.replace(/\&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+				if(escape) string = string.replace(/\&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 				line.innerHTML = string;
 				var scrollBottom = false;
 				if((panel.scrollHeight - panel.clientHeight) - panel.scrollTop < 20) {
 					scrollBottom = true;
 				}
 				panel.appendChild(line);
-				panel.appendChild(document.createElement("br"));
 				if(scrollBottom) {
 					panel.scrollTop = panel.scrollHeight;
 				}
+			}
+
+			var userMonitorPanel = document.getElementById("userMonitorPanel");
+			function refreshUserMonitor() {
+				userMonitorPanel.innerHTML = "";
+			}
+
+			function formatSocket(data) {
+				let disp = "";
+				disp += "[";
+				disp += `World: <a href="/${data.world}">${data.world || '(Main)'}</a> | `;
+				disp += `Username: <b>${data.username}</b> | `
+				disp += `Hidden: <b>${data.hidden}</b> | `;
+				disp += `ID: ${data.id} | `;
+				disp += `Channel: ${data.channel} | `;
+				disp += `IP Address: <a href="https://rwhois.he.net/whois.php?query=${data.ipAddress}">${data.ipAddress}</a>`
+				disp += "]"
+
+				return appendLine(disp, userMonitorPanel, false);
 			}
 
 			function processJSONReq(data) {
@@ -190,6 +211,13 @@
 
 				if(data.type === "socketStats") {
 					window.user_sockets.innerText = "Current user sockets: " + data.count+"";
+				}
+
+				if(data.type === "formattedSockets") {
+					refreshUserMonitor();
+					for(var i of data.data) {
+						formatSocket(i);
+					}
 				}
 			}
 

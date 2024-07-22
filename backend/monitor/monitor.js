@@ -23,6 +23,7 @@ var loginTemplate = fs.readFileSync("./backend/monitor/login.html");
 
 var cachedTileCount = null;
 var socketStats = {};
+var formattedSockets = [];
 var sessionKeys = {};
 var csrfTokens = {};
 
@@ -129,6 +130,10 @@ parentPort.on("message", function(data) {
 		if(data.type === "socketStats") {
 			socketStats = data;
 		}
+
+		if(data.type === "formattedSockets") {
+			formattedSockets = data;
+		}
 		
 		data = "$" + JSON.stringify(data);
 	}
@@ -164,8 +169,12 @@ function sendPreliminaryData(ws) {
 		ws.send("[Server] " + socketCount + " monitor socket(s)");
 	} catch(e) {}
 
-	try{
+	try {
 		ws.send("$" + JSON.stringify(socketStats));
+	} catch(e) {}
+
+	try {
+		ws.send("$" + JSON.stringify(formattedSockets));
 	} catch(e) {}
 }
 
