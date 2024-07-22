@@ -12,7 +12,7 @@ function filename_sanitize(input) {
 }
 
 module.exports.GET = async function(req, write, server, ctx) {
-	var dispage = server.callPage;
+	var dispage = ctx.callPage;
 	var db = server.db;
 	var db_ch = server.db_chat;
 	

@@ -536,7 +536,8 @@ var pages = {
 		tabular: require("./backend/pages/accounts/tabular.js"),
 		verify: require("./backend/pages/accounts/verify.js"),
 		verify_email: require("./backend/pages/accounts/verify_email.js"),
-		chathistory: require("./backend/pages/accounts/chathistory.js")
+		chathistory: require("./backend/pages/accounts/chathistory.js"),
+		user_messages: require("./backend/pages/accounts/user_messages.js")
 	},
 	admin: {
 		administrator: require("./backend/pages/admin/administrator.js"),
@@ -1106,6 +1107,7 @@ function createEndpoints(server) {
 	server.registerEndpoint("accounts/verify_email/*", pages.accounts.verify_email);
 	server.registerEndpoint("accounts/sso", pages.accounts.sso);
 	server.registerEndpoint("accounts/chathistory/*", pages.accounts.chathistory);
+	server.registerEndpoint("accounts/user_messages/*", pages.accounts.user_messages);
 
 	server.registerEndpoint("ajax/protect", pages.protect);
 	server.registerEndpoint("ajax/unprotect", pages.unprotect);
@@ -1171,6 +1173,8 @@ function createEndpoints(server) {
 	server.setHTTPRateLimit(pages.world_style, 2);
 	server.setHTTPRateLimit(pages.world_props, 2);
 	server.setHTTPRateLimit(pages.user_data, 2);
+	server.setHTTPRateLimit(pages.accounts.chathistory, 2);
+	server.setHTTPRateLimit(pages.accounts.user_messages, 2);
 }
 
 function new_token(len) {
