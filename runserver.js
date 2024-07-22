@@ -571,7 +571,8 @@ var pages = {
 	urllink: require("./backend/pages/urllink.js"),
 	world_props: require("./backend/pages/world_props.js"),
 	world_style: require("./backend/pages/world_style.js"),
-	yourworld: require("./backend/pages/yourworld.js")
+	yourworld: require("./backend/pages/yourworld.js"),
+	user_data: require("./backend/pages/user_data.js")
 };
 
 var websockets = {
@@ -1129,6 +1130,7 @@ function createEndpoints(server) {
 
 	server.registerEndpoint("world_style", pages.world_style);
 	server.registerEndpoint("world_props", pages.world_props);
+	server.registerEndpoint("user_data/*", pages.user_data);
 
 	server.registerEndpoint("other/random_color", pages.other.random_color, { no_login: true });
 	server.registerEndpoint("other/backgrounds/*", pages.other.load_backgrounds, { no_login: true });
@@ -1166,6 +1168,7 @@ function createEndpoints(server) {
 	server.setHTTPRateLimit(pages.yourworld, 6, "GET");
 	server.setHTTPRateLimit(pages.world_style, 2);
 	server.setHTTPRateLimit(pages.world_props, 2);
+	server.setHTTPRateLimit(pages.user_data, 2);
 }
 
 function new_token(len) {
