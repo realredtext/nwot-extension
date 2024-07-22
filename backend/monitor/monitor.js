@@ -22,6 +22,7 @@ var pageTemplate = fs.readFileSync("./backend/monitor/monitor.html");
 var loginTemplate = fs.readFileSync("./backend/monitor/login.html");
 
 var cachedTileCount = null;
+var socketStats = {};
 var sessionKeys = {};
 var csrfTokens = {};
 
@@ -124,6 +125,11 @@ parentPort.on("message", function(data) {
 		if(data.type == "dbCount") {
 			cachedTileCount = data;
 		}
+
+		if(data.type === "socketStats") {
+			socketStats = data;
+		}
+		
 		data = "$" + JSON.stringify(data);
 	}
 	wsServer.clients.forEach(function(ws) {
@@ -156,6 +162,10 @@ function sendPreliminaryData(ws) {
 	});
 	try {
 		ws.send("[Server] " + socketCount + " monitor socket(s)");
+	} catch(e) {}
+
+	try{
+		ws.send("$" + JSON.stringify(socketStats));
 	} catch(e) {}
 }
 

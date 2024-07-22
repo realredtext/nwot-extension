@@ -4,6 +4,9 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
 		<title>Traffic Monitor</title>
 		<style>
+			hr {
+				margin: 10px;
+			}
 			table {
 				background-color: #FFFFFF;
 				padding: 1px;
@@ -24,10 +27,10 @@
 			a:hover {
 				color: #ffc336;
 			}
-			#mainTitle {
+			.mainTitle {
 				background-image: linear-gradient(#4292ee, #314d77);
 			}
-			#outputPanel {
+			.outputPanel {
 				background-color: black;
 				width: 700px;
 				height: 500px;
@@ -43,7 +46,7 @@
 			#outputPanel span {
 				display: block;
 			}
-			#tileCachePanel {
+			.tileCachePanel {
 				background-color: white;
 				border: 1px solid black;
 				padding: 7px;
@@ -66,23 +69,45 @@
 		<table style="width: 100%;" class="mainTable">
 			<tbody>
 				<tr style="background-color: #6961e2;">
-					<td style="padding: 4px;" id="mainTitle">
+					<td style="padding: 4px;" class="mainTitle">
 						<span style="font-weight: bold;">Load Monitor</span>
 					</td>
 				</tr>
 				<tr style="height: 100%; color: #000000;">
 					<td style="vertical-align: top; padding-top: 1px;">
 						<div style="background-color: #e6f0ff; height: 100%; padding: 4px;">
-							<div id="outputPanel"></div>
+							<div class="outputPanel" id="mainOutputPanel"></div>
 							<div id="controlPanel">
 								<div id="logTypePanel">
 									<b>Log Types</b><br>
 								</div>
-								<div id="tileCachePanel">
+								<div class="tileCachePanel">
 									<b>Tile Cache</b><br>
 									<span id="tc_worlds">Worlds: --</span><br>
 									<span id="tc_tiles">Total Tiles: --</span>
 								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<hr>
+
+		<table style="width: 100%;" class="mainTable">
+			<tbody>
+				<tr style="background-color: #6961e2;">
+					<td style="padding: 4px;" class="mainTitle">
+						<span style="font-weight: bold;">User Monitor</span>
+					</td>
+				</tr>
+				<tr style ="height: 100%; color: #000000;">
+					<td style="vertical-align: top; padding-top: 1px;">
+						<div style="background-color: #e6f0ff; height: 100%; padding: 4px;">
+							<div class="outputPanel"></div>
+							<div class="tileCachePanel">
+								<b>Socket stats</b><br>
+								<span id="user_sockets">User sockets: --</span><br>
 							</div>
 						</div>
 					</td>
@@ -142,17 +167,18 @@
 			}
 
 			var outputPanel = document.getElementById("outputPanel");
-			function appendLine(string) {
+			function appendLine(string, panel) {
 				var line = document.createElement("span");
 				string = string.replace(/\&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 				line.innerHTML = string;
 				var scrollBottom = false;
-				if((outputPanel.scrollHeight - outputPanel.clientHeight) - outputPanel.scrollTop < 20) {
+				if((panel.scrollHeight - panel.clientHeight) - panel.scrollTop < 20) {
 					scrollBottom = true;
 				}
-				outputPanel.appendChild(line);
+				panel.appendChild(line);
+				panel.appendChild(document.createElement("br"));
 				if(scrollBottom) {
-					outputPanel.scrollTop = outputPanel.scrollHeight;
+					panel.scrollTop = panel.scrollHeight;
 				}
 			}
 
@@ -160,6 +186,10 @@
 				if(data.type == "dbCount") {
 					window.tc_worlds.innerText = "Worlds: " + data.worlds;
 					window.tc_tiles.innerText = "Total Tiles: " + data.tiles;
+				}
+
+				if(data.type === "socketStats") {
+					window.user_sockets.innerText = "Current user sockets: " + data.count+"";
 				}
 			}
 
@@ -183,7 +213,7 @@
 			function makeSocket() {
 				socket = new WebSocket("ws" + (window.location.protocol === "https:" ? "s" : "") + "://" + window.location.host + window.location.pathname + "ws/");
 				socket.onopen = function() {
-					appendLine("[Monitor] Opened; Attempting to authenticate");
+					appendLine("[Monitor] Opened; Attempting to authenticate", mainOutputPanel);
 					var cookies = getCookies();
 					socket.send(JSON.stringify({
 						kind: "csrftoken",
@@ -191,7 +221,7 @@
 					}));
 				}
 				socket.onclose = function() {
-					appendLine("[Monitor] Closed. Reconnecting...");
+					appendLine("[Monitor] Closed. Reconnecting...", mainOutputPanel);
 					setTimeout(makeSocket, 1000);
 				}
 				socket.onmessage = function(msg) {
@@ -204,7 +234,7 @@
 					logCounts[type]++;
 					updateLogCount(type);
 					if(logTypes[type]) {
-						appendLine(data);
+						appendLine(data, mainOutputPanel);
 					}
 				}
 			}
