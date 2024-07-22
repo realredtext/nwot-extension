@@ -123,7 +123,8 @@ module.exports.GET = async function(req, write, server, ctx, params) {
 		classic_csrftoken: user.csrftoken,
 		worlds_owned: world_list,
 		memberships: html_memberships,
-		email_verified: user.is_active
+		email_verified: user.is_active,
+		username: user.username
 	};
 
 	write(render("profile.html", data));
