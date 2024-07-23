@@ -104,7 +104,7 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 	}
 
 	// sends `[ Server ]: <message>` in chat.
-	function serverChatResponse(message, location) {
+	function serverChatResponse(message, location, html=false) {
 		if(ws.sdata.passiveCmd) return;
 		send({
 			nickname: "[ Server ]",
@@ -113,7 +113,7 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 			message: message,
 			registered: true,
 			location: location,
-			op: false,
+			op: html,
 			admin: false,
 			staff: false,
 			color: "",
@@ -241,7 +241,8 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 		[0, "delete", ["id", "timestamp"], "delete a chat message", "1220 1693147307895"], // check for permission
 		[0, "tell", ["id", "message"], "tell someone a secret message", "1220 The coordinates are (392, 392)"],
 		[0, "whoami", null, "display your identity"],
-		[0, "test", null, "preview your appearance"]
+		[0, "test", null, "preview your appearance"],
+		[0, "users", null, "see who is on your world"]
 
 		// hidden by default
 		// "/search Phrase" (client) -> searches for Phrase within a 25 tile radius
@@ -668,6 +669,43 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 			}
 			return serverChatResponse("Unmuted " + cnt + " user(s)", location);
 		},
+		users: function() {
+			var canUse = user.superuser || is_owner;
+			if(!canUse) return;
+			
+			var foundUsers = [];
+			var count = 0;
+
+			wss.clients.forEach(({sdata}) => {
+				if(sdata.world.name === ws.sdata.world.name) {
+					count++;
+					if(!user.superuser && sdata.hide_user_count) return;
+					foundUsers.push((function(socketData, superuser) {
+						let out = `<div style="background-color: #DADADA; font-family: monospace;">`
+						out += `<b>[${socketData.id}]</b>: `;
+						out += "Username: "+(socketData.username || "(anon)");
+						if(!user.superuser) return out;
+
+						out += " | Channel: "+socketData.channel+" | ";
+						out += "Hidden: "+socketData.hidden+" | ";
+						out += "IP: "+socketData.ipAddress+" | ";
+						out += "Origin: "+socketData.origin;
+
+						return out;
+					})({
+						id: sdata.clientId,
+						username: sdata.user.username,
+						channel: sdata.channel,
+						hidden: sdata.hide_user_count,
+						ipAddress: sdata.ipAddress,
+						origin: sdata.origin
+						
+					}, user.superuser))
+				};
+			});
+
+			return serverChatResponse(`${count} users on /${ws.sdata.world.name}:<br> ${foundUsers.join("")}`, location, true);
+		},
 		whoami: function() {
 			var idstr = "Who Am I:\n";
 			var user_login = "(anonymous)";
@@ -807,6 +845,9 @@ module.exports = async function(ws, data, send, broadcast, server, ctx) {
 				return;
 			case "test":
 				com.test();
+				break;
+			case "users":
+				com.users();
 				break;
 			default:
 				serverChatResponse("Invalid command: " + msg);
