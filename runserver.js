@@ -559,7 +559,9 @@ var pages = {
 		users_by_username: require("./backend/pages/admin/users_by_username.js"),
 		restrictions: require("./backend/pages/admin/restrictions.js"),
 		shell: require("./backend/pages/admin/shell.js"),
-		chat_filter: require("./backend/pages/admin/chat_filter.js")
+		chat_filter: require("./backend/pages/admin/chat_filter.js"),
+		user_search: require("./backend/pages/admin/user_search.js"),
+		world_search: require("./backend/pages/admin/world_search.js")
 	},
 	other: {
 		ipaddress: require("./backend/pages/other/ipaddress.js"),
@@ -1138,6 +1140,8 @@ function createEndpoints(server) {
 	server.registerEndpoint("administrator/shell", pages.admin.shell);
 	server.registerEndpoint("administrator/restrictions", pages.admin.restrictions, { binary_post_data: true });
 	server.registerEndpoint("administrator/chat_filter", pages.admin.chat_filter);
+	server.registerEndpoint("administrator/user_search", pages.admin.user_search);
+	server.registerEndpoint("administrator/world_search", pages.admin.world_search);
 
 	server.registerEndpoint("script_manager/", pages.script_manager);
 	server.registerEndpoint("script_manager/edit/*", pages.script_edit);

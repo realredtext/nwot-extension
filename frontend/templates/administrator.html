@@ -18,6 +18,14 @@
 			window.location.pathname = "/accounts/download/" + worldname_download.value + "/";
 			return false;
 		}
+		function goto_chathistory() {
+			window.location.pathname = "/accounts/chathistory/" + worldname_chathistory.value + "/";
+			return false;
+		}
+		function goto_usermessages() {
+			window.location.pathname = "/accounts/user_messages/" + username_messages.value + "/";
+			return false;
+		}
 		function goto_user_by_username() {
 			window.location.pathname = "/administrator/users/by_username/" + user_info_by_username.value + "/";
 			return false;
@@ -180,6 +188,28 @@
 		</div>
 	</div>
 
+	<div class="content_set">
+		<div class="content_set_title">Download World Chathistory</div>
+		<div class="content_set_content">
+			<form onsubmit="return goto_chathistory()">
+				World name:
+				<input type="text" name="worldname" id="worldname_chathistory" value="">
+				<input type="submit" value="Download">
+			</form>
+		</div>
+	</div>
+
+	<div class="content_set">
+		<div class="content_set_title">Download User Chathistory</div>
+		<div class="content_set_content">
+			<form onsubmit="return goto_usermessages()">
+				User name:
+				<input type="text" name="username" id="username_messages" value="">
+				<input type="submit" value="Download">
+			</form>
+		</div>
+	</div>
+
 	{% if user.operator %}
 	<div class="content_set">
 		<div class="content_set_title">Edit Users</div>
@@ -314,6 +344,15 @@
 			<a href="/administrator/user_list/">User list</a><br>{% endif %}
 			<a href="/administrator/shell/">Execute shell script</a><br>
 			<a href="/administrator/chat_filter/">Chat filter</a>
+		</div>
+	</div>
+
+	<div class="content_set">
+		<div class="content_set_title">Search Pages</div>
+		<div class="content_set_content">
+			<a href="/administrator/world_search/">World Search</a>
+			<br>
+			<a href="/administrator/user_search/">User Search</a>
 		</div>
 	</div>
 

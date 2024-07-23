@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+	World Search | Our World of Text
+{% endblock %}
+
+{% block header %}
+	<h1>World Search</h1>
+	<span><a href="/administrator/">« Back to Admin Panel</a></span>
+{% endblock %}
+
+{% block content %}
+	<div class="content_set">
+		<div class="content_set_title">Search for world</div>
+		<div class="content_set_content">
+			{% if message %}
+				<span style="font-size:80%"><i>{{ message }}</i></span>
+			{% endif %}
+			<form method="POST" action=".">
+				Find World: 
+				<input type="text" name="search_query" value="" autocomplete="off">
+				<input type="submit" value="Find">
+			</form>
+		</div>
+	</div>
+	{% if worlds.length > 0 %}
+		<div class="content_set">
+			<div class="content_set_title">Worlds found:</div>
+			<div class="content_set_content">
+				<ul>
+					{% for world in worlds %}
+					<li>
+						<a href="/accounts/configure/{{ world.name }}/">/{{ world.name }}</a>,
+						<span>{{ world.views }} views</span>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+{% endif %}
+{% endblock %}
