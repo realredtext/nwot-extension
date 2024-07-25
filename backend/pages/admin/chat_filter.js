@@ -3,13 +3,13 @@ module.exports.GET = async function(req, write, server, ctx, params) {
 	var user = ctx.user;
 	var csrftoken = ctx.cookies.csrftoken;
 	
-	var dispage = server.callPage;
+	var dispage = ctx.callPage;
 	var blocked_phrase_list = server.blockedPhraseList;
 	var phrasePenaltyTime = server.phrasePenaltyTime;
 	if(blocked_phrase_list.length === 1 && blocked_phrase_list[0] === "") blocked_phrase_list = [];
 	
 	if(!user.superuser) {
-		return await dispage("404", null, req, serve, server, ctx);
+		return await dispage("404", null, req, write, server, ctx);
 	}
 	
 	write(HTML("administrator_chat_filter.html", {
