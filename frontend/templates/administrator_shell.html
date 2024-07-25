@@ -117,7 +117,7 @@
 			},
 			error: function(req) {
 				if(req.status == 404) {
-					printShell("The shell script does not exist (./data/shell.js)");
+					printShell("The shell script does not exist (../nwotdata/shell.js)");
 				} else {
 					printShell("HTTP Error (" + req.status + "): " + req.responseText);
 				}
